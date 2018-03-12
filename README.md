@@ -1,2 +1,2 @@
 # aMAZEing
-Maze Game in memory of nana Roe
+Maze Game in memory of nana Roe.
