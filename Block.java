@@ -1,5 +1,5 @@
 public class Block {
-	
+
 	protected enum bType{PLAIN_BLOCK, START_BLOCK, END_BLOCK}
 
 	private boolean wallN;
@@ -7,7 +7,7 @@ public class Block {
 	private boolean wallE;
 	private boolean wallW;
 	private bType type;
-	
+
 	public Block(boolean wallN, boolean wallS, boolean wallE, boolean wallW, bType type) {
 		this.wallN = wallN;
 		this.wallS = wallS;
@@ -15,34 +15,35 @@ public class Block {
 		this.wallW = wallW;
 		this.type = type;
 	}
-	
+
 	public Block(int seed) {
 		blockSet(seed);
 	}
-	
+
 	/**
 	 *   Seed Layout
-	 * 
+	 *
 	 *       2
 	 *     ·---·
 	 *   7 | 1 | 3
 	 *     ·---·
 	 *       5
-	 *     
+	 *
 	 * Type: Plain default
 	 *       Start = 11
 	 *       End = 13
+	 * Goes up to 2730 for all walls will a lot of repeats
 	 */
-		
-	
+
+
 	public void blockSet(int seed) {
-		
+
 		setWallN(false);
 		setWallS(false);
 		setWallE(false);
 		setWallW(false);
 		setType(bType.PLAIN_BLOCK);
-		
+
 		if(seed % 2 == 0)
 			setWallN(true);
 		if(seed % 3 == 0)
@@ -56,11 +57,11 @@ public class Block {
 		if(seed % 13 == 0)
 			setType(bType.END_BLOCK);
 	}
-	
+
 	public int blockGet() {
-		
+
 		int seed = 1;
-		
+
 		if(wallN)
 			seed*=2;
 		if(wallE)
@@ -73,10 +74,10 @@ public class Block {
 			seed*=11;
 		if(type == bType.END_BLOCK)
 			seed*=13;
-		
+
 		return seed;
 	}
-	
+
 	public boolean isWallN() {
 		return wallN;
 	}
@@ -114,17 +115,17 @@ public class Block {
 			T = "S";
 		if(type == bType.END_BLOCK)
 			T = "E";
-		
-		return "·" + ( wallN ?"---":"   ") + "·\n" 
-				+ ( wallW ?"|":" ") + " " + T + " " + ( wallE ?"|":" ") + "\n" 
+
+		return "·" + ( wallN ?"---":"   ") + "·\n"
+				+ ( wallW ?"|":" ") + " " + T + " " + ( wallE ?"|":" ") + "\n"
 				+ "·" + ( wallS ?"---":"   ") + "·\n";
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Block [ Seed=" + blockGet() + ", wallN=" + wallN + ", wallS=" + wallS + ", wallE=" + wallE + ", wallW=" + wallW + ", type=" + type
 				+ "]";
 	}
-	
-	
+
+
 }
