@@ -126,6 +126,4 @@ public class Block {
 		return "Block [ Seed=" + blockGet() + ", wallN=" + wallN + ", wallS=" + wallS + ", wallE=" + wallE + ", wallW=" + wallW + ", type=" + type
 				+ "]";
 	}
-
-
 }
