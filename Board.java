@@ -3,7 +3,6 @@
 import java.awt.Point;
 import java.util.*;
 
-import Block.bType;
 
 public class Board{
 
@@ -113,7 +112,7 @@ public class Board{
 	protected Block getStart() throws InvalidBoard{
 		ArrayList<Block> Blocks = new ArrayList<Block>();
 		for(Block block : boardP.values()) {
-			if(block.getType() == bType.START_BLOCK)
+			if(block.getType() == Block.bType.START_BLOCK)
 				Blocks.add(block);
 		}
 		
@@ -131,7 +130,7 @@ public class Board{
 	 */
 	protected void setStart(Point point) {
 		Block block = boardP.get(point);
-		block.setType(bType.START_BLOCK);
+		block.setType(Block.bType.START_BLOCK);
 		boardP.put(point, block);
 	}
 	
@@ -142,7 +141,7 @@ public class Board{
 	 */
 	protected void setEnd(Point point) {
 		Block block = boardP.get(point);
-		block.setType(bType.END_BLOCK);
+		block.setType(Block.bType.END_BLOCK);
 		boardP.put(point, block);
 	}
 	
@@ -155,7 +154,7 @@ public class Board{
 	protected Block getEnd() throws InvalidBoard{
 		ArrayList<Block> Blocks = new ArrayList<Block>();
 		for(Block block : boardP.values()) {
-			if(block.getType() == bType.END_BLOCK)
+			if(block.getType() == Block.bType.END_BLOCK)
 				Blocks.add(block);
 		}
 		
