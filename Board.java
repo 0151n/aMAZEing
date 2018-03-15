@@ -1,11 +1,19 @@
+
+
+import java.awt.Point;
 import java.util.*;
+
+import Block.bType;
 
 public class Board{
 
 	private List<List<Block>> board = new ArrayList<List<Block>>(); 
 	private int sizex;
 	private int sizey;
-
+	
+	private HashMap<Point,Block> boardP = new HashMap<Point,Block>();
+	//private ArrayList<Point> solution = new ArrayList<Point>();
+	
 	//default constructor
 	Board(){
 		sizex = 0;
@@ -45,7 +53,7 @@ public class Board{
 	void setBlock(int x,int y,int seed){
 		if(x < sizex && y < sizey){
 			//set block by seed
-			Block temp = new Block(1);
+	//		Block temp = new Block(1);
 			board.get(x).get(y).blockSet(seed);
 			//add walls to adjacent blocks if the exist in current block
 			if(x < sizex - 1 && seed % 3 == 0)board.get(x + 1).get(y).setWallW(true);		
@@ -57,7 +65,7 @@ public class Board{
 	@Override
 	public String toString(){
 		String out = "";
-		int i,j,k;
+		int i,j; // Extra k
 		//add first row to string
 		out += ".";
 		for(i = 0;i < sizex;i++)out += (getBlock(i,0).isWallN() ? "---" : "   ") + ".";
@@ -78,4 +86,144 @@ public class Board{
 		
 		return out;
 	}
+	
+	//////////////////////////////////////////////////////////////////////////////
+	
+	protected void CreateEmptyHashBoard(){
+		
+		for(int i = 0;i < sizex;i++){			
+			for(int j = 0;j < sizey;j++){
+				boardP.put(new Point(i, j), new Block(1));
+			}
+		}
+	}
+	
+	protected Boolean checkIfValid() throws InvalidBoard {
+		getStart();
+		getEnd();
+		return false;
+	}
+	
+	/**
+	 * Method to get starting block of board using HashMaps
+	 * 
+	 * @return Starting Block
+	 * @throws InvalidBoard If there are more than 1 starting block.
+	 */
+	protected Block getStart() throws InvalidBoard{
+		ArrayList<Block> Blocks = new ArrayList<Block>();
+		for(Block block : boardP.values()) {
+			if(block.getType() == bType.START_BLOCK)
+				Blocks.add(block);
+		}
+		
+		if(Blocks.size() != 1) {
+			throw new InvalidBoard("More than one start block on board");
+		}
+		else
+			return Blocks.get(0);
+	}
+	
+	/**
+	 * Method to set board's start block.
+	 * 
+	 * @param point
+	 */
+	protected void setStart(Point point) {
+		Block block = boardP.get(point);
+		block.setType(bType.START_BLOCK);
+		boardP.put(point, block);
+	}
+	
+	/**
+	 * Method to set board's end block.
+	 * 
+	 * @param point
+	 */
+	protected void setEnd(Point point) {
+		Block block = boardP.get(point);
+		block.setType(bType.END_BLOCK);
+		boardP.put(point, block);
+	}
+	
+	/**
+	 * Method to get end block of board using HashMaps
+	 * 
+	 * @return End Block
+	 * @throws InvalidBoard If there are more than 1 end block.
+	 */
+	protected Block getEnd() throws InvalidBoard{
+		ArrayList<Block> Blocks = new ArrayList<Block>();
+		for(Block block : boardP.values()) {
+			if(block.getType() == bType.END_BLOCK)
+				Blocks.add(block);
+		}
+		
+		if(Blocks.size() != 1) {
+			throw new InvalidBoard("More than one end block on board");
+		}
+		else
+			return Blocks.get(0);
+	}
+	
+	/**
+	 * Method returns block north of point given. Returns Null if there isn't one. Using HashMaps
+	 * 
+	 * @param block 
+	 * @return
+	 */
+	protected Block getNorth(Point point) {
+		if(point.getY() <= 0)
+			return null;
+		else {
+			point.setLocation(point.getX(), point.getY() + 1);
+			return boardP.get(point);
+		}
+	}
+	
+	/**
+	 * Method returns block East of point given. Returns Null if there isn't one. Using HashMaps
+	 * 
+	 * @param block 
+	 * @return
+	 */
+	protected Block getEast(Point point) {
+		if(point.getX() >= sizex)
+			return null;
+		else {
+			point.setLocation(point.getX(), point.getY() + 1);
+			return boardP.get(point);
+		}
+	}
+	
+	/**
+	 * Method returns block South of point given. Returns Null if there isn't one. Using HashMaps
+	 * 
+	 * @param block 
+	 * @return
+	 */
+	protected Block getSouth(Point point) {
+		if(point.getY() >= sizey)
+			return null;
+		else {
+			point.setLocation(point.getX(), point.getY() + 1);
+			return boardP.get(point);
+		}
+	}
+	
+	/**
+	 * Method returns block West of point given. Returns Null if there isn't one. Using HashMaps
+	 * 
+	 * @param block 
+	 * @return
+	 */
+	protected Block getWest(Point point) {
+		if(point.getX() <= 0)
+			return null;
+		else {
+			point.setLocation(point.getX(), point.getY() + 1);
+			return boardP.get(point);
+		}
+	}
+	
 }
