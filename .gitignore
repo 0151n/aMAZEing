@@ -1,0 +1,6 @@
+Makefile
+src/Block.class
+src/Board.class
+src/aMAZEing.class
+src/InvalidBoard.class
+
