@@ -3,7 +3,6 @@
 import java.awt.Point;
 import java.util.*;
 
-
 public class Board{
 
 	private List<List<Block>> board = new ArrayList<List<Block>>(); 
@@ -34,6 +33,62 @@ public class Board{
 			}
 		}
 	}
+	//create a random valid board with a start and an end
+	void CreateRandomBoard(){
+		CreateEmptyBoard();
+		Random rand = new Random();
+		//length of path between start and end
+		int pathLength = rand.nextInt(sizex) + (sizex);
+		int[][] path = new int[pathLength][3];
+		System.out.println(pathLength);
+		//set start position
+		// second dimension 0 is x, 1 is y
+		path[0][0] = rand.nextInt(sizex); 
+		path[0][1] = rand.nextInt(sizey); 
+		//setStart(start);
+		//generate random path from start to end
+		int pos = 1;
+		while(pos < pathLength){
+			int direction = rand.nextInt(4);
+			//north
+			if(direction == 0 && path[pos - 1][1] > 0){
+				path[pos][0] = path[pos - 1][0];
+				path[pos][1] = path[pos - 1][1] - 1;
+				path[pos][2] = 0;
+				pos++;
+			//east
+			} else if(direction == 1 && path[pos - 1][0] < sizex){
+				path[pos][0] = path[pos - 1][0] + 1;
+				path[pos][1] = path[pos - 1][1];
+				path[pos][2] = 1;
+				pos++;
+			//west
+			} else if(direction == 2 && path[pos - 1][0] > 0){
+				path[pos][0] = path[pos - 1][0] - 1;
+				path[pos][1] = path[pos - 1][1];
+				path[pos][2] = 2;
+				pos++;
+			//south
+			} else if(direction == 3 && path[pos - 1][1] < sizey){
+				path[pos][0] = path[pos - 1][0];
+				path[pos][1] = path[pos - 1][1] + 1;
+				path[pos][2] = 3;
+				pos++;
+			}
+		}
+		//randomize blocks
+		for(int i = 0;i < sizex;i++){
+			for(int j = 0;j < sizey;j++){
+				//setBlock(i,j,rand.nextInt(210) + 1);
+				setBlock(i,j,1);
+			}
+		}
+		//draw path through blocks
+		for(int i = 0;i < pathLength;i++){
+			setBlock(path[i][0],path[i][1],210);
+		}
+
+	}
 	int getBlockSeed(int x,int y){
 		if(x < sizex && y < sizey){
 			return board.get(x).get(y).blockGet();		
@@ -52,7 +107,6 @@ public class Board{
 	void setBlock(int x,int y,int seed){
 		if(x < sizex && y < sizey){
 			//set block by seed
-	//		Block temp = new Block(1);
 			board.get(x).get(y).blockSet(seed);
 			//add walls to adjacent blocks if the exist in current block
 			if(x < sizex - 1 && seed % 3 == 0)board.get(x + 1).get(y).setWallW(true);		
