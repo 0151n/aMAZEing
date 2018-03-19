@@ -1,3 +1,5 @@
+package src;
+
 
 
 public class InvalidBoard extends Exception{
