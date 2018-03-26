@@ -178,7 +178,7 @@ public class Board{
 		board.get(x).get(y).setType(type);
 	}
 	void setBlock(int x, int y, Block block){
-		board.get(x).get(y) == block;
+		board.get(x).set(y,block);
 	}
 	@Override
 	public String toString(){
