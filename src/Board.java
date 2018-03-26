@@ -11,7 +11,10 @@ public class Board{
 	private List<List<Block>> board = new ArrayList<List<Block>>(); 
 	private int sizex;
 	private int sizey;
-	
+	private Point start;
+	private Point end;
+
+
 	private HashMap<Point,Block> boardP = new HashMap<Point,Block>();
 	//private ArrayList<Point> solution = new ArrayList<Point>();
 	
@@ -27,6 +30,9 @@ public class Board{
 	}
 	//intilize all the blocks in this board
 	void CreateEmptyBoard(){
+		if(board.size() == sizex && board.get(0).size() == sizey){
+			clearBoard();
+		}	
 		//fill array with y block arrays
 		for(int i = 0;i < sizex;i++){
 			board.add(new ArrayList<Block>());
@@ -36,62 +42,109 @@ public class Board{
 			}
 		}
 	}
+	//reset the board to an empty one
+	void clearBoard(){
+		for(int i = 0;i < sizex;i++){
+			for(int j = 0;j < sizey;j++){
+				setBlock(i,j,0);
+			}
+		}
+	}
 	//create a random valid board with a start and an end
 	void CreateRandomBoard(){
+		//reset board to make sure its empty
 		CreateEmptyBoard();
-		Random rand = new Random();
+		//set up random generator
+		Random rand = new Random();	
 		//length of path between start and end
-		int pathLength = rand.nextInt(sizex) + (sizex);
+		int pathLength = rand.nextInt(sizex * 2)  + sizey;
+		//create new array to hold path from start to end
 		int[][] path = new int[pathLength][3];
-		System.out.println(pathLength);
 		//set start position
 		// second dimension 0 is x, 1 is y
 		path[0][0] = rand.nextInt(sizex); 
-		path[0][1] = rand.nextInt(sizey); 
-		//setStart(start);
+		path[0][1] = rand.nextInt(sizey);
+	       	//set start block
+		System.out.println(path[0][0] + ":" + path[0][1]);
+
 		//generate random path from start to end
-		int pos = 1;
+		int pos = 1; //counter for path array
+		int direction; //random direction for next path element
+		int prevDirection = -1; //inverse of diection travelled by last path element
+		
 		while(pos < pathLength){
-			int direction = rand.nextInt(4);
+			direction = rand.nextInt(4);
 			//north
-			if(direction == 0 && path[pos - 1][1] > 0){
+			if(direction == 0 && direction != prevDirection && path[pos - 1][1] > 0){
 				path[pos][0] = path[pos - 1][0];
 				path[pos][1] = path[pos - 1][1] - 1;
 				path[pos][2] = 0;
 				pos++;
+				prevDirection = 3;
 			//east
-			} else if(direction == 1 && path[pos - 1][0] < sizex){
+			} else if(direction == 1  && direction != prevDirection && path[pos - 1][0] < sizex - 1){
 				path[pos][0] = path[pos - 1][0] + 1;
 				path[pos][1] = path[pos - 1][1];
 				path[pos][2] = 1;
 				pos++;
+				prevDirection = 2;
 			//west
-			} else if(direction == 2 && path[pos - 1][0] > 0){
+			} else if(direction == 2  && direction != prevDirection && path[pos - 1][0] > 0){
 				path[pos][0] = path[pos - 1][0] - 1;
 				path[pos][1] = path[pos - 1][1];
 				path[pos][2] = 2;
 				pos++;
+				prevDirection = 1;
 			//south
-			} else if(direction == 3 && path[pos - 1][1] < sizey){
+			} else if(direction == 3  && direction != prevDirection && path[pos - 1][1] < sizey - 1){
 				path[pos][0] = path[pos - 1][0];
 				path[pos][1] = path[pos - 1][1] + 1;
 				path[pos][2] = 3;
 				pos++;
+				prevDirection = 0;
 			}
 		}
-		//randomize blocks
 		for(int i = 0;i < sizex;i++){
 			for(int j = 0;j < sizey;j++){
-				setBlock(i,j,rand.nextInt(210) + 1);
-				//setBlock(i,j,1);
+				setBlock(i,j,(((rand.nextInt(210) + 1))));
+				setBlockType(i,j,Block.bType.PLAIN_BLOCK);
 			}
 		}
-		/*code for path -- not yet implemented --
-		//draw path through blocks
+		
+		setBlockType(path[pathLength - 1][0],path[pathLength - 1][1],Block.bType.END_BLOCK);	
+		setBlockType(path[0][0],path[0][1],Block.bType.START_BLOCK);
+		System.out.println("/" + getBlock(path[0][0],path[0][1]).isStart() + "/");
+		
+		//draw path through blocks in order to ensure board is valid (e.g. at least one path from start node to finish node
 		for(int i = 0;i < pathLength;i++){
-			setBlock(path[i][0],path[i][1],210);
+			switch(path[i][2]){
+				//north 
+				case 0:
+					//remove south wall
+					setBlock(path[i][0],path[i][1],getBlockSeed(path[i][0],path[i][1]) / 5);
+				break;
+
+				//east
+				case 1:
+					//remove west wall
+					setBlock(path[i][0],path[i][1],getBlockSeed(path[i][0],path[i][1]) / 7);
+
+				break;
+
+				//west
+				case 2:
+					//remove east wall
+					setBlock(path[i][0],path[i][1],getBlockSeed(path[i][0],path[i][1]) / 3);
+				break;
+
+				//south
+				case 3:
+					//remove north wall
+					setBlock(path[i][0],path[i][1],getBlockSeed(path[i][0],path[i][1]) / 2);
+				break;
+			}
 		}
-		*/
+		
 
 	}
 	int getBlockSeed(int x,int y){
@@ -121,6 +174,12 @@ public class Board{
 			if(y > 0 && seed % 2 == 0 )board.get(x).get(y - 1).setWallS(true);		
 		}
 	}
+	void setBlockType(int x,int y,Block.bType type){
+		board.get(x).get(y).setType(type);
+	}
+	void setBlock(int x, int y, Block block){
+		board.get(x).get(y) == block;
+	}
 	@Override
 	public String toString(){
 		String out = "";
@@ -129,14 +188,14 @@ public class Board{
 		out += ".";
 		for(i = 0;i < sizex;i++)out += (getBlock(i,0).isWallN() ? "---" : "   ") + ".";
 		out += "\n";		
-		for(i = 0;i < sizex;i++)out += (getBlock(i,0).isWallW() ? "|" : " ") + "   ";
+		for(i = 0;i < sizex;i++)out += (getBlock(i,0).isWallW() ? "|" : " ") +  "   ";
 		out += (getBlock(i - 1,0).isWallE() ? "|" : " ");
 		out += "\n.";		
 		for(i = 0;i < sizex;i++)out += (getBlock(i,0).isWallS() ? "---" : "   ") + ".";		
 		out += "\n";
 		//add all the rest of the rows to string
 		for(j = 1; j < sizey;j++){
-			for(i = 0;i < sizex;i++)out += (getBlock(i,j).isWallW() ? "|" : " ") + "   ";
+			for(i = 0;i < sizex;i++)out += (getBlock(i,j).isWallW() ? "|" : " ") + " " + (getBlock(i,j).isStart() ? "X" : " ") + " "; 
 			out += (getBlock(i - 1,j).isWallE() ? "|" : " ");
 			out += "\n.";		
 			for(i = 0;i < sizex;i++)out += (getBlock(i,j).isWallS() ? "---" : "   ") + ".";		
@@ -145,7 +204,14 @@ public class Board{
 		
 		return out;
 	}
-	
+	void test(){
+		for(int j = 0;j < sizey;j++){
+			for(int i = 0;i < sizex;i++){
+				System.out.print(getBlockSeed(i,j) + " ");
+			}
+			System.out.println("");
+		}
+	}
 	//////////////////////////////////////////////////////////////////////////////
 	
 	protected void CreateEmptyHashBoard(){

@@ -10,6 +10,8 @@ public class Block {
 	private boolean wallS;
 	private boolean wallE;
 	private boolean wallW;
+	private boolean start;
+	private boolean end;
 	private bType type;
 	
 	public Block(boolean wallN, boolean wallS, boolean wallE, boolean wallW, bType type) {
@@ -18,6 +20,8 @@ public class Block {
 		this.wallE = wallE;
 		this.wallW = wallW;
 		this.type = type;
+		if(type == bType.START_BLOCK)this.start = true;
+		if(type == bType.END_BLOCK)this.end = true;
 	}
 	
 	public Block(int seed) {
@@ -110,6 +114,28 @@ public class Block {
 	}
 	public void setType(bType type) {
 		this.type = type;
+		if(type == bType.START_BLOCK){
+			setStart(true);
+			setEnd(false);
+		} else if(type == bType.END_BLOCK){
+			setStart(false);
+			setEnd(true);
+		} else {
+			setStart(false);
+			setEnd(false);
+		}
+	}
+	public boolean isStart() {
+		return start;
+	}
+	public void setStart(boolean start) {
+		this.start = start;
+	}
+	public boolean isEnd() {
+		return end;
+	}
+	public void setEnd(boolean end) {
+		this.end = end;
 	}
 
 	public String print() {

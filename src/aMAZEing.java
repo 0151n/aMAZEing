@@ -9,5 +9,6 @@ public class aMAZEing {
 		Board board = new Board(4,4);
 		board.CreateRandomBoard();
 		System.out.print(board);
+		board.test();
 	}
 }
