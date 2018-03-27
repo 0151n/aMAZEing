@@ -1,5 +1,5 @@
 package src;
-
+import java.util.*;
 
 
 public class Block {
@@ -41,7 +41,13 @@ public class Block {
 	 *       Start = 11
 	 *       End = 13
 	 */
-	
+	public void blockSet(boolean N, boolean E, boolean S, boolean W,bType type){
+		setWallN(N);
+		setWallE(E);
+		setWallS(S);
+		setWallW(W);
+		setType(type);
+	}	
 		
 	public void blockSet(int seed) {
 		
@@ -156,5 +162,11 @@ public class Block {
 				+ "]";
 	}
 	
-	
+	public void randomize(){
+		Random rand = new Random();
+		setWallN((rand.nextInt(3) == 0 ? true : false));
+		setWallE((rand.nextInt(3) == 0 ? true : false));
+		setWallS((rand.nextInt(3) == 0 ? true : false));
+		setWallW((rand.nextInt(3) == 0 ? true : false));
+	}	
 }

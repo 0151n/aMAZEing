@@ -65,82 +65,97 @@ public class Board{
 		path[0][0] = rand.nextInt(sizex); 
 		path[0][1] = rand.nextInt(sizey);
 	       	//set start block
-		System.out.println(path[0][0] + ":" + path[0][1]);
 
 		//generate random path from start to end
 		int pos = 1; //counter for path array
 		int direction; //random direction for next path element
 		int prevDirection = -1; //inverse of diection travelled by last path element
-		
+		int loop_count = 0; // number of unsuccesfull loops
+
 		while(pos < pathLength){
 			direction = rand.nextInt(4);
 			//north
 			if(direction == 0 && direction != prevDirection && path[pos - 1][1] > 0){
+				if(path[pos - 1][0] == path[0][0] && path[pos - 1][1] - 1 == path[0][1])continue;
 				path[pos][0] = path[pos - 1][0];
 				path[pos][1] = path[pos - 1][1] - 1;
 				path[pos][2] = 0;
 				pos++;
 				prevDirection = 3;
+				loop_count = 0;
 			//east
 			} else if(direction == 1  && direction != prevDirection && path[pos - 1][0] < sizex - 1){
+				if(path[pos - 1][0] + 1 == path[0][0] && path[pos - 1][1] == path[0][1])continue;
 				path[pos][0] = path[pos - 1][0] + 1;
 				path[pos][1] = path[pos - 1][1];
 				path[pos][2] = 1;
 				pos++;
 				prevDirection = 2;
+				loop_count = 0;
 			//west
 			} else if(direction == 2  && direction != prevDirection && path[pos - 1][0] > 0){
+				if(path[pos - 1][0] - 1 == path[0][0] && path[pos - 1][1] == path[0][1])continue;
 				path[pos][0] = path[pos - 1][0] - 1;
 				path[pos][1] = path[pos - 1][1];
 				path[pos][2] = 2;
 				pos++;
 				prevDirection = 1;
+				loop_count = 0;
 			//south
 			} else if(direction == 3  && direction != prevDirection && path[pos - 1][1] < sizey - 1){
+				if(path[pos - 1][0] == path[0][0] && path[pos - 1][1] + 1 == path[0][1])continue;
 				path[pos][0] = path[pos - 1][0];
 				path[pos][1] = path[pos - 1][1] + 1;
 				path[pos][2] = 3;
 				pos++;
 				prevDirection = 0;
+				loop_count = 0;
 			}
+			if(loop_count > 4){
+				pathLength = pos;
+				break;
+			}
+			loop_count++;
 		}
 		for(int i = 0;i < sizex;i++){
 			for(int j = 0;j < sizey;j++){
-				setBlock(i,j,(((rand.nextInt(210) + 1))));
-				setBlockType(i,j,Block.bType.PLAIN_BLOCK);
+				Block random = new Block(false,false,false,false,Block.bType.PLAIN_BLOCK);
+				random.randomize();
+				setBlock(i,j,random);
 			}
 		}
 		
 		setBlockType(path[pathLength - 1][0],path[pathLength - 1][1],Block.bType.END_BLOCK);	
 		setBlockType(path[0][0],path[0][1],Block.bType.START_BLOCK);
-		System.out.println("/" + getBlock(path[0][0],path[0][1]).isStart() + "/");
-		
 		//draw path through blocks in order to ensure board is valid (e.g. at least one path from start node to finish node
 		for(int i = 0;i < pathLength;i++){
 			switch(path[i][2]){
 				//north 
 				case 0:
-					//remove south wall
-					setBlock(path[i][0],path[i][1],getBlockSeed(path[i][0],path[i][1]) / 5);
+					//remove south wall and adjacent north
+					board.get(path[i][0]).get(path[i][1]).setWallS(false);
+					if(path[i][1] + 1 < 4)board.get(path[i][0]).get(path[i][1] + 1).setWallN(false);
 				break;
 
 				//east
 				case 1:
 					//remove west wall
-					setBlock(path[i][0],path[i][1],getBlockSeed(path[i][0],path[i][1]) / 7);
-
+					board.get(path[i][0]).get(path[i][1]).setWallW(false);
+					if(path[i][0] - 1 > 0)board.get(path[i][0] - 1).get(path[i][1]).setWallE(false);
 				break;
 
-				//west
+				//west
 				case 2:
 					//remove east wall
-					setBlock(path[i][0],path[i][1],getBlockSeed(path[i][0],path[i][1]) / 3);
+					board.get(path[i][0]).get(path[i][1]).setWallE(false);
+					if(path[i][0] + 1 < 4)board.get(path[i][0] + 1).get(path[i][1]).setWallW(false);
 				break;
 
 				//south
 				case 3:
 					//remove north wall
-					setBlock(path[i][0],path[i][1],getBlockSeed(path[i][0],path[i][1]) / 2);
+					board.get(path[i][0]).get(path[i][1]).setWallN(false);
+					if(path[i][1] - 1 > 0)board.get(path[i][0]).get(path[i][1] - 1).setWallS(false);
 				break;
 			}
 		}
@@ -179,23 +194,30 @@ public class Board{
 	}
 	void setBlock(int x, int y, Block block){
 		board.get(x).set(y,block);
+		if(x < sizex - 1 && block.isWallE())board.get(x + 1).get(y).setWallW(true);		
+		if(x > 0 && block.isWallW())board.get(x - 1).get(y).setWallE(true);		
+		if(y < sizey - 1 && block.isWallS())board.get(x).get(y + 1).setWallN(true);		
+		if(y > 0 && block.isWallN())board.get(x).get(y - 1).setWallS(true);
 	}
 	@Override
 	public String toString(){
 		String out = "";
-		int i,j; // Extra k
+		int i,j;
 		//add first row to string
 		out += ".";
 		for(i = 0;i < sizex;i++)out += (getBlock(i,0).isWallN() ? "---" : "   ") + ".";
 		out += "\n";		
-		for(i = 0;i < sizex;i++)out += (getBlock(i,0).isWallW() ? "|" : " ") +  "   ";
+		for(i = 0;i < sizex;i++)out += (getBlock(i,0).isWallW() ? "|" : " ") + " " + (getBlock(i,0).isStart() ? "*" : "") + 
+										 	     (getBlock(i,0).isEnd() ? "X" : " ") + " "; 
 		out += (getBlock(i - 1,0).isWallE() ? "|" : " ");
 		out += "\n.";		
 		for(i = 0;i < sizex;i++)out += (getBlock(i,0).isWallS() ? "---" : "   ") + ".";		
 		out += "\n";
+
 		//add all the rest of the rows to string
 		for(j = 1; j < sizey;j++){
-			for(i = 0;i < sizex;i++)out += (getBlock(i,j).isWallW() ? "|" : " ") + " " + (getBlock(i,j).isStart() ? "X" : " ") + " "; 
+			for(i = 0;i < sizex;i++)out += (getBlock(i,j).isWallW() ? "|" : " ") + " " + (getBlock(i,j).isStart() ? "*" : "") + 
+												     (getBlock(i,j).isEnd() ? "X" : " ") + " "; 
 			out += (getBlock(i - 1,j).isWallE() ? "|" : " ");
 			out += "\n.";		
 			for(i = 0;i < sizex;i++)out += (getBlock(i,j).isWallS() ? "---" : "   ") + ".";		
